@@ -26,8 +26,8 @@ jobs:
 
       - name: Run arXiv digest job
         env:
-          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
-          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM: ${{ secrets.RESEND_FROM }}
           RECIPIENT_EMAIL: atharavnaik8@gmail.com
         run: python main.py
 

@@ -1,59 +1,50 @@
-"""Send email with top papers."""
+"""Send email with top papers via Resend API."""
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from typing import List, Dict
 import os
+import resend
 
 
 def send_papers_email(
     recipient_email: str,
     papers: List[Dict],
     sender_email: str = None,
-    sender_password: str = None
+    api_key: str = None
 ) -> bool:
-    """Send email with top papers.
+    """Send email with top papers using Resend.
 
     Args:
         recipient_email: Email address to send to
         papers: List of paper dictionaries
-        sender_email: Gmail address (uses GMAIL_SENDER env var if not provided)
-        sender_password: Gmail password/app-specific password (uses GMAIL_PASSWORD env var if not provided)
+        sender_email: From address (uses RESEND_FROM env var if not provided).
+            For testing without a verified domain, use "onboarding@resend.dev".
+        api_key: Resend API key (uses RESEND_API_KEY env var if not provided)
 
     Returns:
         True if successful, False otherwise
     """
+    if api_key is None:
+        api_key = os.getenv("RESEND_API_KEY", "")
     if sender_email is None:
-        sender_email = os.getenv("GMAIL_SENDER", "")
-    if sender_password is None:
-        sender_password = os.getenv("GMAIL_PASSWORD", "")
+        sender_email = os.getenv("RESEND_FROM", "onboarding@resend.dev")
 
-    if not sender_email or not sender_password:
-        print("Error: GMAIL_SENDER and GMAIL_PASSWORD environment variables required")
+    if not api_key:
+        print("Error: RESEND_API_KEY environment variable required")
         return False
 
+    resend.api_key = api_key
+
     try:
-        # Create message
-        message = MIMEMultipart("alternative")
-        message["Subject"] = "Top 5 arXiv Papers This Week - AI Research Digest"
-        message["From"] = sender_email
-        message["To"] = recipient_email
+        params: resend.Emails.SendParams = {
+            "from": sender_email,
+            "to": [recipient_email],
+            "subject": "Top 5 arXiv Papers This Week - AI Research Digest",
+            "html": create_html_email(papers),
+            "text": create_plain_text_email(papers),
+        }
 
-        # Create HTML content
-        html_content = create_html_email(papers)
-        plain_text = create_plain_text_email(papers)
-
-        # Attach parts
-        message.attach(MIMEText(plain_text, "plain"))
-        message.attach(MIMEText(html_content, "html"))
-
-        # Send email via Gmail SMTP
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, sender_password)
-            server.sendmail(sender_email, recipient_email, message.as_string())
-
-        print(f"Email sent successfully to {recipient_email}")
+        email = resend.Emails.send(params)
+        print(f"Email sent successfully to {recipient_email} (id: {email.get('id')})")
         return True
 
     except Exception as e:

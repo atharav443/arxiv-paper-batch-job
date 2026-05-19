@@ -3,21 +3,23 @@
 ## Prerequisites
 
 - GitHub account with a repository
-- Gmail account with 2FA enabled
+- [Resend](https://resend.com) account (free tier is fine — 3,000 emails/month)
 - Python 3.11+ (for local testing)
 
-## Step 1: Gmail Setup
+## Step 1: Resend Setup
 
-1. **Enable 2-Factor Authentication**
-   - Go to https://myaccount.google.com/security
-   - Enable "2-Step Verification"
+1. **Create a Resend account**
+   - Sign up at https://resend.com
+   - The free tier allows 3,000 emails/month, 100/day — plenty for a weekly digest
 
-2. **Create App Password**
-   - Go to https://myaccount.google.com/apppasswords
-   - Select "Mail" and "Other (custom name)"
-   - Enter "arXiv Digest Job"
-   - Google will generate a 16-character password
-   - **Save this password securely** - you'll need it for GitHub Secrets
+2. **Create an API key**
+   - Go to **API Keys** → **Create API Key**
+   - Name it "arXiv Digest Job", grant "Sending access"
+   - Copy the `re_...` value immediately — it is only shown once
+
+3. **Pick a sender address**
+   - **For testing:** use the built-in `onboarding@resend.dev`. It works without any domain setup, but it can only deliver to the email address you registered with Resend.
+   - **For production:** verify a domain under **Domains** in the Resend dashboard (add the DNS records they show you). Once verified, you can send from any address on that domain (e.g. `digest@yourdomain.com`).
 
 ## Step 2: GitHub Repository Setup
 
@@ -32,9 +34,9 @@
    - Go to your repository on GitHub
    - Navigate to Settings → Secrets and variables → Actions
    - Click "New repository secret"
-   - Add two secrets:
-     - **GMAIL_SENDER**: Your Gmail address (e.g., your-email@gmail.com)
-     - **GMAIL_PASSWORD**: The 16-character app-specific password from Step 1
+   - Add these secrets:
+     - **RESEND_API_KEY**: The `re_...` key from Step 1
+     - **RESEND_FROM**: Your sender address (e.g. `digest@yourdomain.com`, or `onboarding@resend.dev` for testing)
 
    These secrets will be automatically injected into the workflow as environment variables.
 
@@ -75,8 +77,8 @@
 2. **Create .env File**
    ```bash
    cat > .env << EOF
-   GMAIL_SENDER=your-email@gmail.com
-   GMAIL_PASSWORD=your-app-specific-password
+   RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
+   RESEND_FROM=onboarding@resend.dev
    RECIPIENT_EMAIL=atharavnaik8@gmail.com
    EOF
    ```
