@@ -28,10 +28,10 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-2. Create a `.env` file with Gmail credentials:
+2. Create a `.env` file with Resend credentials:
 ```bash
-GMAIL_SENDER=your-email@gmail.com
-GMAIL_PASSWORD=your-app-specific-password
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxx
+RESEND_FROM=onboarding@resend.dev   # or your verified domain sender
 RECIPIENT_EMAIL=atharavnaik8@gmail.com
 ```
 
@@ -46,17 +46,18 @@ python main.py
 
 2. Add GitHub Secrets:
    - Go to Settings → Secrets and variables → Actions
-   - Add `GMAIL_SENDER`: Your Gmail address
-   - Add `GMAIL_PASSWORD`: Your [app-specific password](https://support.google.com/accounts/answer/185833)
+   - Add `RESEND_API_KEY`: Your Resend API key
+   - Add `RESEND_FROM`: The verified sender address (or `onboarding@resend.dev` for testing)
 
 3. The workflow runs automatically every Tuesday at 10 AM IST (04:30 UTC)
    - Can also be triggered manually via "Run workflow"
 
-## Gmail Setup
+## Resend Setup
 
-1. Enable 2-Factor Authentication on your Google account
-2. Generate an [app-specific password](https://support.google.com/accounts/answer/185833)
-3. Use the app password as `GMAIL_PASSWORD` in GitHub Secrets
+1. Create a free account at [resend.com](https://resend.com) (3,000 emails/month free)
+2. Go to **API Keys** → **Create API Key**, copy the `re_...` value
+3. (Optional but recommended) Add and verify a domain under **Domains** so you can send from your own address. For quick testing, the built-in `onboarding@resend.dev` sender works without verification — but it can only deliver to the email you signed up with.
+4. Add `RESEND_API_KEY` (and `RESEND_FROM` if you verified a domain) as GitHub Secrets
 
 ## Project Structure
 
@@ -98,8 +99,9 @@ Change `[:5]` to `[:N]` where N is desired number of papers.
 ## Troubleshooting
 
 ### Email not sending
-- Check GitHub Secrets are set correctly
-- Verify Gmail app-specific password is current
+- Check GitHub Secrets are set correctly (`RESEND_API_KEY`, optionally `RESEND_FROM`)
+- Verify the API key is still active in the Resend dashboard
+- If using `onboarding@resend.dev`, you can only send to the email you signed up with — verify a domain to send anywhere
 - Check email isn't being marked as spam
 
 ### No papers found
@@ -109,7 +111,7 @@ Change `[:5]` to `[:N]` where N is desired number of papers.
 
 ### Running locally fails
 - Install all dependencies: `pip install -r requirements.txt`
-- Set environment variables: `export GMAIL_SENDER=...`
+- Set environment variables: `export RESEND_API_KEY=...`
 - Check internet connection for arXiv access
 
 ## How It Works
@@ -127,3 +129,4 @@ MIT
 ## Contact
 
 For issues or improvements, please open an issue on GitHub.
+# arxiv-paper-batch-job
