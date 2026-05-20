@@ -2,7 +2,7 @@ name: ArXiv Weekly Digest
 
 on:
   schedule:
-    # Every Tuesday at 10 AM IST (04:30 UTC)
+    # Every Wednesday at 10 AM IST (04:30 UTC)
     - cron: '30 4 * * 3'
   workflow_dispatch:
 
@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -30,11 +30,3 @@ jobs:
           RESEND_FROM: ${{ secrets.RESEND_FROM }}
           RECIPIENT_EMAIL: atharavnaik8@gmail.com
         run: python main.py
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: job-logs
-          retention-days: 30
-          if-no-files-found: ignore
