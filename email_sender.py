@@ -23,10 +23,12 @@ def send_papers_email(
     Returns:
         True if successful, False otherwise
     """
-    if api_key is None:
+    if not api_key:
         api_key = os.getenv("RESEND_API_KEY", "")
-    if sender_email is None:
-        sender_email = os.getenv("RESEND_FROM", "onboarding@resend.dev")
+    # Fall back to the test sender when RESEND_FROM is unset OR set-but-empty
+    # (GitHub Actions substitutes a missing secret as an empty string).
+    if not sender_email:
+        sender_email = os.getenv("RESEND_FROM") or "onboarding@resend.dev"
 
     if not api_key:
         print("Error: RESEND_API_KEY environment variable required")
